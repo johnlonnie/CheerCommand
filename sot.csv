@@ -1,0 +1,4 @@
+100,50,You pressed B and probably made Lonnie bucket,keyboard,send,'b',,,
+200,100,Cheers! You pressed 9 and probably made lonnie pull out his tankard.,keyboard,send,'9',,,
+300,150,You pressed Left Mouse and probably made Lonnie shoot or eat something he wasn't supposed to.,mouse,click,button='left',,,
+500,250,You pressed X and probably made lonnie drop something important or put away a weapon.,keyboard,send,'x',,,

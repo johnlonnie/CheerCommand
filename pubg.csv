@@ -1,0 +1,7 @@
+100,50,You pressed R and probably made Lonnie reload.,keyboard,send,'r',,,
+150,75,You pressed Z and probably made Lonnie go prone.,keyboard,send,'z',,,
+200,100,You pressed 5 and switched to a throwable.,keyboard,send,'5',,,
+300,150,You pressed Left Mouse and probably made Lonnie shoot or honk.,mouse,click,button='left',,,
+500,250,You pressed Left Mouse for 3 seconds and probably made Lonnie unload a whole clip.,mouse,press,button='left',3,release
+800,400,You pressed E and probably made Lonnie exit a moving vehicle and die.,keyboard,send,'e',,,
+138,69,Dance Lonnie... Dance!,keyboard,send,';',,,
