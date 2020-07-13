@@ -30,6 +30,8 @@ CheerCommand for Twitch
     0.1.3
         Added !wasd mode to mix up wasd
         Added handling for multiple config files
+    0.1.4
+        Fixed !wasd duration
 
 http://twitch.tv/johnlonnie
 
@@ -42,7 +44,6 @@ TODO:
     Refactor commandBuild to accept many instructions
     Move commandbuild away from exec utilization (currently a limit of kayboard and mouse lib argument handling)
     Consolidate WASD function into commandBuild class structure
-    Use threading for any timers (current timers depend on receiving chat messages)
     Optimize IRCv3 tag parses in utility
 """
 
@@ -55,6 +56,7 @@ import utility
 import cfg
 import socket
 import time
+import threading
 import re
 import sys
 import datetime
@@ -74,7 +76,6 @@ randomAccess = [] #list of specific chat users who are granted access to special
 boxBoss = "" #username in the channel that receives special permissions
 boxBossCredits = 10 #number of times the boxboss can use their special commands
 commandCounter = 0
-timerCommandClock = 0
 timerCommandState = 0
 timerCommandName = ""
 
@@ -169,22 +170,20 @@ def subModeToggle():
         print(subMode)
     chat(s, "Sub Goal Madness has been " + subStatusMessage)
 
-def timeCheck(secondDuration): #checks time passed and sends a message
-    global timerCommandClock
+def resetWasd(secondDuration): #checks time passed and sends a message
     global timerCommandState
-    print("CHECKING TIME")
-    if time.time() - timerCommandClock > secondDuration and timerCommandState == 1:
+    global timerCommandName
+    time.sleep(secondDuration)
+    if timerCommandState == 1:
         keyboard.unhook_all()
-        timerCommandClock = 0
         timerCommandState = 0
         chat(s, "The " + timerCommandName + " timer has ended.")
+        timerCommandName = ""
 
 def wasdChanger(): #mixes up wasd. Ensures no double-mapping or non-assignment.
 
-    global timerCommandClock
     global timerCommandState
     global timerCommandName
-    timerCommandClock = time.time()
     timerCommandName = "!wasd"
     timerCommandState = 1
     wasdBaseArray = ["'w'","'a'","'s'","'d'"]
@@ -218,6 +217,8 @@ def wasdChanger(): #mixes up wasd. Ensures no double-mapping or non-assignment.
     exec("keyboard.remap_key('d'," + wasdNewArray[3] + ")")
     print("D : " + wasdNewArray[3])
     chat(s, "Wacky WASD!")
+
+    threading.Thread(target=resetWasd, args=[cfg.idleTime]).start()
 
 def timerMessage():
     chat(s, "Sorry. There's already a timer running for " + timerCommandName)
@@ -270,10 +271,6 @@ def bot_loop():
     global boxBossCredits
     global commandCounter
     global s
-    global oldTime
-    global timerCommandState
-    global timerCommandClock
-    global timerCommandName
 
     randomMax = cfg.row_count - 1
 
@@ -300,7 +297,6 @@ def bot_loop():
 
     while True:
         data = s.recv(1024)
-        timeCheck(cfg.idleTime)
         if data.decode("utf-8") == "PING :tmi.twitch.tv\r\n":
             s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
         else:
